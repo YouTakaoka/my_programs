@@ -4,7 +4,7 @@ class Main {
     public static void main(String args[]) {
         String[] lines = new String[100];
         int numOfLines;
-        numOfLines = eof(lines);
+        numOfLines = readUntilEof(lines);
         for(int i = 0 ; i < numOfLines ; i++){
             System.out.println(lines[i]);
         }
@@ -20,7 +20,7 @@ class Main {
         scanner.close();
     }
 
-    public static int eof(String[] ls){
+    public static int readUntilEof(String[] ls){
         int l = 0;
         String InputText;
         Scanner scan = new Scanner(System.in);
