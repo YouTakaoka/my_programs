@@ -1,66 +1,99 @@
-import java.util.Scanner;
+import java.util.*;
 
 class Main {
     public static void main(String args[]) {
-        String[] lines = new String[100];
+        List<String> lines = new ArrayList<>();
         int numOfLines;
         numOfLines = readUntilEof(lines);
         for(int i = 0 ; i < numOfLines ; i++){
-            System.out.println(lines[i]);
+            System.out.println(executeMainCalculation(lines.get(i)));
         }
     }
 
     public static double calculatePartOfExpression(String op, double n1, double n2){
         switch(op){
-        case '*':
+        case "*":
             return n1*n2;
-            break;
-        case '/':
+        case "/":
             return n1/n2;
-            break;
-        case '+':
+        case "+":
             return n1+n2;
-            break;
-        case '-':
+        case "-":
             return n1-n2;
-            break;
+        }
+        return 0;
+    }
+    public static void calculate_i_thPart(int i, List<Double> nums, List<String> ops){
+            double n1, n2;
+            String op;
+            n1 = nums.get(i);
+            n2 = nums.get(i+1);
+            op = ops.get(i);
+            
+            nums.set(i, calculatePartOfExpression(op, n1, n2));
+            nums.remove(i+1);
+            ops.remove(i);
+    }
+
+    public static double calculateFromArray(int lengthOfExpression, List<Double> nums, List<String> ops){
+        printParameters(lengthOfExpression, nums, ops);
+
+        Iterator<String> opsIterator = ops.iterator();
+        int i = 0;
+        while(opsIterator.hasNext()){
+            String op = opsIterator.next();
+            if(op.equals("*") || op.equals("/")){
+                calculate_i_thPart(i, nums, ops);
+                lengthOfExpression -= 2;
+                return calculateFromArray(lengthOfExpression, nums, ops);
+            }
+            i++;
+        }
+        if(lengthOfExpression == 1){
+            return nums.get(0);
+        } else {
+            calculate_i_thPart(0, nums, ops);
+            lengthOfExpression -= 2;
+            return calculateFromArray(lengthOfExpression, nums, ops);
         }
     }
     
-    public static int calculateFromArray(int lengthOfExpression, double[] nums, char[] ops){
-        for(int i=0 ; i < lengthOfExpression\2 ; i++){
-            if(ops[i] == '*' || ops[i] == '/'){}
-        }
-    }
-    
-    public static void devideExpressionIntoArray(int lengthOfExpression, String ex, double[] nums, char[] ops){
-        char[] arrayOfChars = ex.split("");
-        for(int i=0 ; i <= l/2 ; i++){
-            nums[i] = Integer.parseInt(arrayOfChars[2*i]);
-            ops[i] = arrayOfChars[2*i+1];
+    public static void devideExpressionIntoArray(int lengthOfExpression, String ex, List<Double> nums, List<String> ops){
+        List<String> listOfChars = new ArrayList<>();
+        listOfChars.addAll(Arrays.asList(ex.split("")));
+        Iterator<String> listOfCharsIterator = listOfChars.iterator();
+        nums.add((double)Integer.parseInt(listOfCharsIterator.next()));
+        while(listOfCharsIterator.hasNext()){
+            ops.add(listOfCharsIterator.next());
+            nums.add((double)Integer.parseInt(listOfCharsIterator.next()));
         }
     }
 
     public static double executeMainCalculation(String ex){
         int l = ex.length();
-        double[] nums = new double[l/2+1];
-        char[] ops = new char[l/2];
+        List<Double> nums = new ArrayList<Double>();
+        List<String> ops = new ArrayList<String>();
         devideExpressionIntoArray(l, ex, nums, ops);
-        return calculateFromArray(l, nums, ops)
+        return calculateFromArray(l, nums, ops);
     }
     
-    public static int readUntilEof(String[] ls){
-        int l = 0;
+    public static int readUntilEof(List<String> ls){
         String InputText;
         Scanner scan = new Scanner(System.in);
 
         while(scan.hasNext()){
-            ls[l] = scan.nextLine();
-            l++;
+            ls.add(scan.nextLine());
         }
 
         scan.close();
 
-        return l;
+        return ls.size();
+    }
+
+    // for debug
+    public static void printParameters(int lengthOfExpression, List<Double> nums, List<String> ops){
+        System.out.println(lengthOfExpression);
+        System.out.println(nums);
+        System.out.println(ops);
     }
 }
