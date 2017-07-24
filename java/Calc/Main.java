@@ -1,80 +1,14 @@
 import java.util.*;
 
-class Main {
+public class Main {
     public static void main(String args[]) {
         List<String> lines = new ArrayList<>();
         int numOfLines;
         numOfLines = readUntilEof(lines);
         for(int i = 0 ; i < numOfLines ; i++){
-            System.out.println(executeMainCalculation(lines.get(i)));
+            Expression exp = new Expression(lines.get(i))
+            System.out.println(exp.executeMainCalculation());
         }
-    }
-
-    public static double calculatePartOfExpression(String op, double n1, double n2){
-        switch(op){
-        case "*":
-            return n1*n2;
-        case "/":
-            return n1/n2;
-        case "+":
-            return n1+n2;
-        case "-":
-            return n1-n2;
-        }
-        return 0;
-    }
-    public static void calculate_i_thPart(int i, List<Double> nums, List<String> ops){
-            double n1, n2;
-            String op;
-            n1 = nums.get(i);
-            n2 = nums.get(i+1);
-            op = ops.get(i);
-            
-            nums.set(i, calculatePartOfExpression(op, n1, n2));
-            nums.remove(i+1);
-            ops.remove(i);
-    }
-
-    public static double calculateFromArray(int lengthOfExpression, List<Double> nums, List<String> ops){
-        printParameters(lengthOfExpression, nums, ops);
-
-        Iterator<String> opsIterator = ops.iterator();
-        int i = 0;
-        while(opsIterator.hasNext()){
-            String op = opsIterator.next();
-            if(op.equals("*") || op.equals("/")){
-                calculate_i_thPart(i, nums, ops);
-                lengthOfExpression -= 2;
-                return calculateFromArray(lengthOfExpression, nums, ops);
-            }
-            i++;
-        }
-        if(lengthOfExpression == 1){
-            return nums.get(0);
-        } else {
-            calculate_i_thPart(0, nums, ops);
-            lengthOfExpression -= 2;
-            return calculateFromArray(lengthOfExpression, nums, ops);
-        }
-    }
-    
-    public static void devideExpressionIntoArray(int lengthOfExpression, String ex, List<Double> nums, List<String> ops){
-        List<String> listOfChars = new ArrayList<>();
-        listOfChars.addAll(Arrays.asList(ex.split("")));
-        Iterator<String> listOfCharsIterator = listOfChars.iterator();
-        nums.add((double)Integer.parseInt(listOfCharsIterator.next()));
-        while(listOfCharsIterator.hasNext()){
-            ops.add(listOfCharsIterator.next());
-            nums.add((double)Integer.parseInt(listOfCharsIterator.next()));
-        }
-    }
-
-    public static double executeMainCalculation(String ex){
-        int l = ex.length();
-        List<Double> nums = new ArrayList<Double>();
-        List<String> ops = new ArrayList<String>();
-        devideExpressionIntoArray(l, ex, nums, ops);
-        return calculateFromArray(l, nums, ops);
     }
     
     public static int readUntilEof(List<String> ls){
@@ -89,10 +23,101 @@ class Main {
 
         return ls.size();
     }
+}
+
+
+class Expression {
+    private StringBuilder sb;
+    
+    Expression(String s){
+        sb = new StringBuilder(s);
+    }
+    
+    public static double calculatePartOfExpression(char op, double n1, double n2){
+        switch(op){
+        case '*':
+            return n1*n2;
+        case '/':
+            return n1/n2;
+        case '+':
+            return n1+n2;
+        case '-':
+            return n1-n2;
+        }
+        return 0;
+    }
+
+    public static void calculate_i_thPart(int i){
+        double n1, n2;
+        char op = sb.charAt(i);
+
+        n1 = getPreviousNumberOf(i);
+        n2 = getNextNumberOf(i);
+            
+        nums.set(i, calculatePartOfExpression(op, n1, n2));
+        nums.remove(i+1);
+        ops.remove(i);
+    }
+
+    getPreviousNumberOf(int i){
+        List<Integer> listOfOperatorIndices = getListOfOperatorIndices();
+        int indexOf_i = listOfOperatorIndices.indexOf(i);
+        sb.subSequence(listOfOperatorIndices.get(indexOf_i-1)+1, listOfOperatorIndices.get(indexOf_i)-1);
+    }
+
+    getNextNumberOf(int i){
+        
+    }
+
+    public static double executeMainCalculation(){
+        // debug:
+        // printParameters();
+        List<Integer> listOfOperatorIndices = getListOfOperatorIndices();
+        Iterator<String> opsIterator = listOfOperatorIndices.iterator();
+
+        if(sb.length() == 1){
+            return Double.parseDouble(sb.toString());
+        }
+
+        while(opsIterator.hasNext()){
+            int i = opsIterator.next();
+            String op = sb.charAt(i);
+            if(op == '*' || op == '/'){
+                calculate_i_thPart(i);
+                return executeMainCalculation();
+            }
+        }
+
+        calculate_i_thPart(listOfOperatorIndices.get(0));
+        return executeMainCalculation();
+    }
+
+    public static List<Integer> getListOfOperatorIndices(){
+        List<Integer> listOfOperatorIndices = new ArrayList<>();
+        for(int i = 0 ; i < sb.length() ; i++){
+            if(isOperator(sb.charAt(i)){
+                    listOfOperatorIndices.add(i);
+            }
+        }
+        return listOfOperatorIndices;
+    }
+
+    public static boolian isOperator(char c){
+        switch(c){
+        case '*':
+        case '/':
+        case '+':
+        case '-':
+            return true;
+        default:
+            return false;
+        }
+    }
+
 
     // for debug
-    public static void printParameters(int lengthOfExpression, List<Double> nums, List<String> ops){
-        System.out.println(lengthOfExpression);
+    public static void printParameters(){
+        System.out.println(sb.length());
         System.out.println(nums);
         System.out.println(ops);
     }

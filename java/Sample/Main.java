@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-class Main {
+public class Main {
     public static void main(String args[]) {
         String[] lines = new String[100];
         int numOfLines;
