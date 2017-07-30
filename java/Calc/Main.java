@@ -2,105 +2,83 @@ import java.util.*;
 
 public class Main {
     public static void main(String args[]) {
-        List<String> lines = new ArrayList<>();
-        int numOfLines;
-        numOfLines = readUntilEof(lines);
-        for(int i = 0 ; i < numOfLines ; i++){
-            Expression exp = new Expression(lines.get(i));
-            System.out.println(exp.executeMainCalculation());
+        MyInput<Double> input = new MyInput<>();
+        List<Double> list = input.carryOut(s -> {
+                Expression ex = new Expression(s);
+                return ex.exec();
+            });
+
+        for(double r: list){
+            System.out.println(r);
         }
-    }
-    
-    public static int readUntilEof(List<String> ls){
-        String InputText;
-        Scanner scan = new Scanner(System.in);
-
-        while(scan.hasNext()){
-            ls.add(scan.nextLine());
-        }
-
-        scan.close();
-
-        return ls.size();
     }
 }
 
-
 class Expression {
-    private StringBuilder sb;
+    private int length;
+    private List<Operator> ops = new ArrayList<>();
+    private List<Double> nums = new ArrayList<>();
+    private List<Integer> indicesOfFirstOps = new ArrayList<>();
+
+    private Operator plus     = (n,m) -> n+m;
+    private Operator minus    = (n,m) -> n-m;
+    private Operator multiply = (n,m) -> n*m;
+    private Operator divide   = (n,m) -> n/m;    
     
-    Expression(String s){
-        sb = new StringBuilder(s);
-    }
-
-    public double executeMainCalculation(){
-        // debug:
-        // printParameters();
-        List<Integer> listOfOperatorIndices = getListOfOperatorIndices();
-        Iterator<Integer> opsIterator = listOfOperatorIndices.iterator();
-
-        if(sb.length() == 1){
-            return Double.parseDouble(sb.toString());
-        }
-
-        while(opsIterator.hasNext()){
-            int i = opsIterator.next();
+    public void Expression(String s){
+        StringBuilder sb = new StringBuilder(s);
+        
+        while((int i = getFirstIndexOfOperator(sb.toString())) > 0){
             char op = sb.charAt(i);
-            if(op == '*' || op == '/'){
-                calculate_i_thPart(i);
-                return executeMainCalculation();
+            nums.add(Double.parseDouble(sb.substring(0,i-1)));
+            ops.add(OperatorClass.charToOp(op));
+            if(OperatorClass.isFirstOp(op)){
+                indicesOfFirstOps.add(i);
             }
+            sb.delete(0,i);
         }
-
-        calculate_i_thPart(listOfOperatorIndices.get(0));
-        return executeMainCalculation();
+        nums.add(Double.parseDoubles(b.toString()));
     }
 
-    public void calculate_i_thPart(int indexOfOperatorList){
+    public double exec(){
+        /* for debug: */
+        // printParameters();
+
+        // calculate first operators(*,/)
+        // sweep from the end of list
+        ListIterator<Integer> it = indicesOfFirstOps.listIterator(indicesOfFirstOps.size());
+        while(it.hasPrevious()){
+            int i = it.previous();
+            calculate_i_thPart(i);
+        }
+
+        // calculate second operators(+,-)
+        for(int i = 0 ; i < ops.size() ; i++){
+            calculate_i_thPart(i);
+        }
+
+        return nums.get(0);
+    }
+
+    public void calculate_i_thPart(int i){
         double n1, n2, res;
-        NumberIndices num1,num2;
-        char op = sb.charAt(getListOfOperatorIndices().get(indexOfOperatorList));
-        int beginOfPart, endOfPart;
+        Operator op = ops.get(i);
+        n1 = nums.get(i);
+        n2 = nums.get(i+1);
+        res = op.exec(n1, n2);
 
-        num1 = getListOfNumberIndices().get(indexOfOperatorList);
-        num2 = getListOfNumberIndices().get(indexOfOperatorList + 1);
-        n1 = getNumber(num1);
-        n2 = getNumber(num2);
-        beginOfPart = num1.getBeginningIndex();
-        endOfPart = num2.getEndingIndex();
-
-        res = calculatePartOfExpression(op, n1, n2);
-        sb.replace(beginOfPart, endOfPart, Double.toString(res));
+        nums.set(i, res);
+        nums.remove(i+1);
+        ops.remove(i);
     }
 
-    public double getNumber(NumberIndices num){
-        int begin = num.getBeginningIndex();
-        int end = num.getEndingIndex();
-        return Double.parseDouble(sb.substring(begin, end));
-    }
-
-    public double calculatePartOfExpression(char op, double n1, double n2){
-        switch(op){
-        case '*':
-            return n1*n2;
-        case '/':
-            return n1/n2;
-        case '+':
-            return n1+n2;
-        case '-':
-            return n1-n2;
-        }
-        return 0;
-    }
-
-    public List<Integer> getListOfOperatorIndices(){
-        List<Integer> listOfOperatorIndices = new ArrayList<>();
-        for(int i = 0 ; i < sb.length() ; i++){
-            if(isOperator(sb.charAt(i))){
-                    listOfOperatorIndices.add(i);
+    public int getFirstIndexOfOperator(String s){
+        for(int i = 0 ; i < s.length() ; i++){
+            if(OperatorClass.isOperator(s.charAt(i))){
+                    return i;
             }
         }
-        return listOfOperatorIndices;
+        return -1;
     }
 
     public List<NumberIndices> getListOfNumberIndices(){
@@ -122,15 +100,61 @@ class Expression {
         return listOfNumberIndices;
     }
 
-    public boolean isOperator(char c){
-        switch(c){
-        case '*':
-        case '/':
-        case '+':
-        case '-':
-            return true;
-        default:
+    private static class OperatorClass {
+        public boolean isOperator(char c){
+            switch(c){
+            case '*':
+            case '/':
+            case '+':
+            case '-':
+                return true;
+            default:
+                return false;
+            }
             return false;
+        }
+
+        public boolean isFirstOp(char c){
+            switch(c){
+            case '*':
+            case '/':
+                return true;
+            default:
+                return false;
+            }
+            return false;
+        }
+
+        Operator charToOp(char c) throws ExpectedOperatorException {
+            switch(c){
+            case '*':
+                return multiply;
+            case '/':
+                return divide;
+            case '+':
+                return plus;
+            case '-':
+                return minus;
+            }
+            throw new ExpectedOperatorException(c);
+        }
+
+        private static class ExpectedOperatorException extends Exception {
+            public ExpectedOperatorException(){
+                super();
+            }
+
+            public ExpectedOperatorException(String mes){
+                super(mes);
+            }
+
+            public ExpectedOperatorException(Throwable cause){
+                super(cause);
+            }
+
+            public ExpectedOperatorException(String mes, Throwable cause){
+                super(mes, cause);
+            }
         }
     }
 
@@ -140,20 +164,7 @@ class Expression {
     }
 }
 
-class NumberIndices{
-    private int begin;
-    private int end;
-        
-    public void NumberIndices(int begin, int end){
-        this.begin = begin;
-        this.end = end;
-    }
-
-    public int getBeginningIndex(){
-        return begin;
-    }
-
-    public int getEndingIndex(){
-        return end;
-    }
+@FunctionalInterface
+Interface Operator {
+    double exec(double n, double m)
 }
