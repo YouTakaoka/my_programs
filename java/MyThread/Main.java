@@ -3,17 +3,23 @@ import java.util.concurrent.*;
 
 public class Main {
     public static void main(String args[]) throws InterruptedException, ExecutionException {
-        ExecutorService executor = Executors.newFixedThreadPool(3);
-        Future<Integer> ret = executor.submit(new Worker("123"));
-      
-        System.out.println(ret.get());
+        MyInput<Future<Integer>> input = new MyInput<>();
 
+        // create thread pool
+        ExecutorService executor = Executors.newCachedThreadPool();
+        
+        MyExec<String, Future<Integer>> createThread = in -> { return executor.submit(new Worker(in)); };
+        List<Future<Integer>> threads = input.carryOut(createThread);
+        
+        for(Future<Integer> ret: threads){
+            System.out.println(ret.get());
+        }
     }
-
+    
     private static class Worker implements Callable<Integer> {
         String s;
             
-        Worker(String s){
+        public Worker(String s){
             this.s = s;
         }
             
