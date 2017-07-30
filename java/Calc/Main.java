@@ -60,8 +60,8 @@ class Expression {
         }
 
         // calculate second operators(+,-)
-        for(int i = 0 ; i < ops.size() ; i++){
-            calculate_i_thPart(i);
+        while(ops.size() > 0){
+            calculate_i_thPart(0);
         }
 
         return nums.get(0);
@@ -122,8 +122,7 @@ class Expression {
             case '-':
                 return minus;
             }
-            char[] carr = {c};
-            throw new ExpectedOperatorException("Got irregular character: " + new String(carr));
+            throw new ExpectedOperatorException("Got irregular character: " + Character.toString(c));
         }
     }
 
