@@ -4,7 +4,7 @@ import java.util.concurrent.*;
 public class Main {
     public void main(String args[]) {
         MyInput<String,Future<Integer>> input = new MyInput<>();
-        ThreadCreator tc = new ThreadCreator<>();
+        ThreadCreator tc = new ThreadCreator();
         List<Future<Integer>> threads = input.carryOut(tc::create);
         
         for(Future<Integer> ret: threads){
@@ -13,8 +13,11 @@ public class Main {
     }
     
     class ThreadCreator {
-        String in;
         ExecutorService executor;
+        
+        public void ThreadCreator(){
+            executor =  Executors.newCachedThreadPool();
+        }
 
         public Future<Integer> create(String in) {
             Future<Integer> ret = executor.submit(new Worker(in));
@@ -39,7 +42,7 @@ public class Main {
 }
 
 class MyInput<S,T> {
-    public List<T> carryOut(MyExec<S,T> method){
+    public List<T> carryOut(MyExec<String,T> method){
         List<T> res;
         Scanner sc = new Scanner(System.in);
         while(sc.hasNext()){
