@@ -20,24 +20,31 @@ class Expression {
     private List<Double> nums = new ArrayList<>();
     private List<Integer> indicesOfFirstOps = new ArrayList<>();
 
-    private Operator plus     = (n,m) -> n+m;
-    private Operator minus    = (n,m) -> n-m;
-    private Operator multiply = (n,m) -> n*m;
-    private Operator divide   = (n,m) -> n/m;    
+    private static Operator plus     = (n,m) -> n+m;
+    private static Operator minus    = (n,m) -> n-m;
+    private static Operator multiply = (n,m) -> n*m;
+    private static Operator divide   = (n,m) -> n/m;    
     
-    public void Expression(String s){
+    public Expression(String s){
         StringBuilder sb = new StringBuilder(s);
+        int i;
         
-        while((int i = getFirstIndexOfOperator(sb.toString())) > 0){
+        while((i = getFirstIndexOfOperator(sb.toString())) > 0){
             char op = sb.charAt(i);
-            nums.add(Double.parseDouble(sb.substring(0,i-1)));
-            ops.add(OperatorClass.charToOp(op));
-            if(OperatorClass.isFirstOp(op)){
-                indicesOfFirstOps.add(i);
+            nums.add(Double.parseDouble(sb.substring(0,i)));
+
+            try{
+                ops.add(OperatorClass.charToOp(op));
+            } catch(ExpectedOperatorException e) {
+                e.printStackTrace();
             }
-            sb.delete(0,i);
+            
+            if(OperatorClass.isFirstOp(op)){
+                indicesOfFirstOps.add(ops.size() - 1);
+            }
+            sb.delete(0,i+1);
         }
-        nums.add(Double.parseDoubles(b.toString()));
+        nums.add(Double.parseDouble(sb.toString()));
     }
 
     public double exec(){
@@ -81,27 +88,8 @@ class Expression {
         return -1;
     }
 
-    public List<NumberIndices> getListOfNumberIndices(){
-        List<Integer> listOfOperatorIndices = getListOfOperatorIndices();
-        Iterator it = listOfOperatorIndices.iterator();
-        List<NumberIndices> listOfNumberIndices = new ArrayList<>();
-        int begin = 0;
-        int end;
-
-        while(it.hasNext()){
-            end = it.next() - 1;
-            listOfNumberIndices.add(new NumberIndices(begin, end));
-            begin = end + 2;
-        }
-
-        end = sb.length() - 1;
-        listOfNumberIndices.add(new NumberIndices(begin, end));
-
-        return listOfNumberIndices;
-    }
-
     private static class OperatorClass {
-        public boolean isOperator(char c){
+        public static boolean isOperator(char c){
             switch(c){
             case '*':
             case '/':
@@ -111,10 +99,9 @@ class Expression {
             default:
                 return false;
             }
-            return false;
         }
 
-        public boolean isFirstOp(char c){
+        public static boolean isFirstOp(char c){
             switch(c){
             case '*':
             case '/':
@@ -122,10 +109,9 @@ class Expression {
             default:
                 return false;
             }
-            return false;
         }
 
-        Operator charToOp(char c) throws ExpectedOperatorException {
+        public static Operator charToOp(char c) throws ExpectedOperatorException {
             switch(c){
             case '*':
                 return multiply;
@@ -136,35 +122,36 @@ class Expression {
             case '-':
                 return minus;
             }
-            throw new ExpectedOperatorException(c);
-        }
-
-        private static class ExpectedOperatorException extends Exception {
-            public ExpectedOperatorException(){
-                super();
-            }
-
-            public ExpectedOperatorException(String mes){
-                super(mes);
-            }
-
-            public ExpectedOperatorException(Throwable cause){
-                super(cause);
-            }
-
-            public ExpectedOperatorException(String mes, Throwable cause){
-                super(mes, cause);
-            }
+            char[] carr = {c};
+            throw new ExpectedOperatorException("Got irregular character: " + new String(carr));
         }
     }
 
-    // for debug
-    public void printParameters(){
-        System.out.println(sb.length());
+    public static class ExpectedOperatorException extends Exception {
+        public ExpectedOperatorException(){
+            super();
+        }
+
+        public ExpectedOperatorException(String mes){
+            super(mes);
+        }
+
+        public ExpectedOperatorException(Throwable cause){
+            super(cause);
+        }
+
+        public ExpectedOperatorException(String mes, Throwable cause){
+            super(mes, cause);
+        }
     }
+
+    /* for debug */
+    // public void printParameters(){
+    //     System.out.println(sb.length());
+    // }
 }
 
 @FunctionalInterface
-Interface Operator {
-    double exec(double n, double m)
+interface Operator {
+    double exec(double n, double m);
 }
