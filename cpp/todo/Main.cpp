@@ -2,6 +2,8 @@
 #include<Main.hpp>
 using namespace std;
 
+// class Searchable
+
 Searchable::Searchable(string name) {
   this->name = name;
 }
@@ -9,6 +11,8 @@ Searchable::Searchable(string name) {
 string Searchable::getName() {
   return this->name;
 }
+
+// class Flag
 
 Flag::Flag(string name, string explanation = "") : Searchable(name) {
   if(Flag::exists(name)) {
@@ -25,6 +29,8 @@ bool Flag::exists(string name) {
     return false;
   }
 }
+
+// class Task
 
 Task::Task(string name, string content = "") : Searchable(name) {
   this->content = content;
@@ -46,11 +52,33 @@ void Task::addFlag(Flag flag) {
   checkedFlags[flag.name] = flag;
 }
 
-void removeFlag(Flag flag) {
+void Task::removeFlag(Flag flag) {
   if(!this->hasFlag()){
     throw NoFlagException(this, flag);
   }
 }
+
+// class TaskFlagException
+TaskFlagException::TaskFlagException(Task task, Flag flag) {
+  this->taskName = task.getName();
+  this->flagName = flag.getName();
+}
+
+string TaskFlagException::getMes() {
+  return this->mes;
+}
+
+// class HasFlagException
+HasFlagException::HasFlagException(Task task, Flag flag) : TaskFlagException(task, flag) {
+  this->mes = "Task "+ taskName + " already has flag "+ this->flagName;
+}
+
+// class NoFlagException
+NoFlagException::NoFlagException(Task task, Flag flag) : TaskFlagException(task, flag){
+  this->mes = "Task "+ taskName + " does not have flag "+ flagName;
+}
+
+// main
 
 int main() {
   //  

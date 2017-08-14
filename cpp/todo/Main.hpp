@@ -54,26 +54,17 @@ protected:
   string taskName;
   string flagName;
 public:
-  TaskFlagException(Task task, Flag flag) {
-    this->taskName = task.getName();
-    this->flagName = flag.getName();
-  }
-  string getMes() {
-    return this->mes;
-  }
-
+  TaskFlagException(Task task, Flag flag);
+  string getMes();
+  ~TaskFlagException() throw() {}
 }
 
 class HasFlagException : public TaskFlagException {
 public:
-  HasFlagException(Task task, Flag flag) : TaskFlagException(task, flag) {
-    this->mes = "Task "+ taskName + " already has flag "+ this->flagName;
-  }
+  HasFlagException(Task task, Flag flag);
 }
 
 class NoFlagException : public TaskFlagException {
 public:
-  NoFlagException(Task task, Flag flag) : TaskFlagException(task, flag){
-    this->mes = "Task "+ taskName + " does not have flag "+ flagName;
-  }
+  NoFlagException(Task task, Flag flag);
 }
