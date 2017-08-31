@@ -11,7 +11,7 @@ private:
   string name;
 public:
   string getName();
-}
+};
 
 class Flag : public Searchable {
 private:
@@ -20,7 +20,7 @@ private:
 public:
   Flag(string name, string explanation = "");
   statc bool exists(string name);
-}
+};
 
 class FlagExistsException : public exception {
 private:
@@ -34,7 +34,7 @@ public:
   string getMes(){
     return this->mes;
   }
-}
+};
 
 class Task : public Searchable {
 private:
@@ -46,7 +46,7 @@ public:
   bool hasFlag(Flag flag);
   void addFlag(Flag flag);
   void removeFlag(Flag flag);
-}
+};
 
 class TaskFlagException : public exception {
 protected:
@@ -57,14 +57,14 @@ public:
   TaskFlagException(Task task, Flag flag);
   string getMes();
   ~TaskFlagException() throw() {}
-}
+};
 
 class HasFlagException : public TaskFlagException {
 public:
   HasFlagException(Task task, Flag flag);
-}
+};
 
 class NoFlagException : public TaskFlagException {
 public:
   NoFlagException(Task task, Flag flag);
-}
+};
