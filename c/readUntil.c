@@ -7,7 +7,7 @@
 int readUntil(FILE* fp, char* buf, char str[], const int max);
 
 int main(int argc, char* argv[]){
-  FILE* fp = fopen("video.txt", "r");
+  FILE* fp = fopen("input.txt", "r");
   if(fp == NULL){
     fprintf(stderr, "Failed to open file.\n");
     return 1;
@@ -15,7 +15,9 @@ int main(int argc, char* argv[]){
   
   char buf[100000];
   int len = readUntil(fp, buf, END, 100000);
-  printf("%d\n", len);
+  //printf("%d\n", len);
+  buf[len] = '\0';
+  printf("%s\n", buf);
   fclose(fp);
   return 0;
 }
