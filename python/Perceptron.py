@@ -24,7 +24,10 @@ class Perceptron:
                 errors += int(update != 0.0)
 
             self.errors_.append(errors)
-            self.ws_.append(self.w_)
+
+            w = []
+            w[:] = self.w_
+            self.ws_.append(w)
 
         return self
 
