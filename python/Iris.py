@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-df = pd.read_csv('http://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data', header=None)
+df = pd.read_csv('iris.data', header=None)
 
 y = df.iloc[0:100,4].values
 y = np.where(y == 'Iris-setosa', -1, 1)

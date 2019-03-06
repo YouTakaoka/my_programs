@@ -10,6 +10,7 @@ class Perceptron:
         rgen = np.random.RandomState(self.random_state)
         #rgen = np.random.RandomState()
         self.w_ = rgen.normal(loc=0.0, scale=0.01, size=1 + X.shape[1])
+        #self.w_ = [0,100,-1]
         self.ws_ = [self.w_]
         self.errors_ = []
 
@@ -20,7 +21,7 @@ class Perceptron:
                 
                 self.w_[1:] += update * xi
                 self.w_[0] += update
-                errors = int(update != 0.0)
+                errors += int(update != 0.0)
 
             self.errors_.append(errors)
             self.ws_.append(self.w_)
